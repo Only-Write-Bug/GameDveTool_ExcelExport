@@ -19,3 +19,5 @@ F:\UnityProject\GameDveTool_ExcelExport\ExcelExportTool\ExcelExportTool\obj\Debu
 F:\UnityProject\GameDveTool_ExcelExport\ExcelExportTool\ExcelExportTool\obj\Debug\net8.0-windows\ExcelExportTool.pdb
 F:\UnityProject\GameDveTool_ExcelExport\ExcelExportTool\ExcelExportTool\obj\Debug\net8.0-windows\ExcelExportTool.genruntimeconfig.cache
 F:\UnityProject\GameDveTool_ExcelExport\ExcelExportTool\ExcelExportTool\obj\Debug\net8.0-windows\ref\ExcelExportTool.dll
+F:\UnityProject\GameDveTool_ExcelExport\ExcelExportTool\ExcelExportTool\obj\Debug\net8.0-windows\LogWindow.g.cs
+F:\UnityProject\GameDveTool_ExcelExport\ExcelExportTool\ExcelExportTool\obj\Debug\net8.0-windows\LogWindow.baml

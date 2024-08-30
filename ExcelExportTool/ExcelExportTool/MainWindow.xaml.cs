@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System.IO;
+using System.Text;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -17,22 +18,54 @@ namespace ExcelExportTool;
 /// </summary>
 public partial class MainWindow : Window
 {
+    private LogWindow _curLogWindow = null;
+
     public MainWindow()
     {
         InitializeComponent();
 
         InitExcelPathEditorBtn();
+        InitXMLPathEditorBtn();
+        InitStartBtn();
+    }
+
+    private void InitPath()
+    {
+        
     }
 
     private void InitExcelPathEditorBtn()
     {
-        ExcelPathEditor.Click += (sender, args) =>
+        ExcelPathEditorButton.Click += (sender, args) =>
         {
             var folderDialog = new OpenFolderDialog();
             if (folderDialog.ShowDialog() == true)
             {
                 ExcelPathTextBox.Text = folderDialog.FolderName;
             }
+        };
+    }
+
+    private void InitXMLPathEditorBtn()
+    {
+        XmlPathEditorButton.Click += (sender, args) =>
+        {
+            var folderDialog = new OpenFolderDialog();
+            if (folderDialog.ShowDialog() == true)
+            {
+                XMLPathTextBox.Text = folderDialog.FolderName;
+            }
+        };
+    }
+
+    private void InitStartBtn()
+    {
+        StartButton.Click += (sender, args) =>
+        {
+            var logWindow = new LogWindow();
+            logWindow.Show();
+            _curLogWindow = logWindow;
+            _curLogWindow.AddLog(FinishResults.Default, Directory.GetCurrentDirectory());
         };
     }
 }

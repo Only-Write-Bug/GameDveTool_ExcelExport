@@ -9,6 +9,7 @@
         Background="DimGray"
         ResizeMode="NoResize">
     <Grid>
+        <!-- Excel folder path -->
         <TextBlock
             VerticalAlignment="Top"
             HorizontalAlignment="Left"
@@ -25,12 +26,47 @@
             FontSize="15">
         </TextBox>
         <Button
-            x:Name="ExcelPathEditor"
+            x:Name="ExcelPathEditorButton"
             Width="50"
             Height="20"
             HorizontalAlignment="Right"
             VerticalAlignment="Top"
             Margin="0,60,147,0"
             Content="Editor"></Button>
+        <!-- XML folder path -->
+        <TextBlock
+            HorizontalAlignment="Left"
+            VerticalAlignment="Top"
+            Margin="93,90,0,0">
+            XML folder path:
+        </TextBlock>
+        <TextBox
+            x:Name="XMLPathTextBox"
+            Width="400"
+            Height="20"
+            VerticalAlignment="Top"
+            Margin="0,90,0,0"
+            
+            FontSize="15">
+        </TextBox>
+        <Button
+            x:Name="XmlPathEditorButton"
+            Width="50"
+            Height="20"
+            HorizontalAlignment="Right"
+            VerticalAlignment="Top"
+            Margin="0,90,147,0"
+            Content="Editor"></Button>
+        <!-- Start Work Btn -->
+        <Button
+            x:Name="StartButton"
+            Width="200"
+            Height="50"
+            VerticalAlignment="Bottom"
+            Margin="0,0,0,30"
+            
+            Content="Start"
+            FontSize="35">
+        </Button>
     </Grid>
 </Window>
