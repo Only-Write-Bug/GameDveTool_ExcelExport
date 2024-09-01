@@ -33,6 +33,9 @@ public partial class LogWindow : Window
             case FinishResults.Failure:
                 brush = new SolidColorBrush(Colors.Red);
                 break;
+            case FinishResults.Warning:
+                brush = new SolidColorBrush(Colors.Yellow);
+                break;
             case FinishResults.Default:
             default:
                 break;

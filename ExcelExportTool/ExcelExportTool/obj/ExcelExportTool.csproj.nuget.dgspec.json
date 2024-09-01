@@ -1,20 +1,20 @@
 {
   "format": 1,
   "restore": {
-    "F:\\UnityProject\\GameDveTool_ExcelExport\\ExcelExportTool\\ExcelExportTool\\ExcelExportTool.csproj": {}
+    "D:\\Projects\\GameDveTool_ExcelExport\\ExcelExportTool\\ExcelExportTool\\ExcelExportTool.csproj": {}
   },
   "projects": {
-    "F:\\UnityProject\\GameDveTool_ExcelExport\\ExcelExportTool\\ExcelExportTool\\ExcelExportTool.csproj": {
+    "D:\\Projects\\GameDveTool_ExcelExport\\ExcelExportTool\\ExcelExportTool\\ExcelExportTool.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "F:\\UnityProject\\GameDveTool_ExcelExport\\ExcelExportTool\\ExcelExportTool\\ExcelExportTool.csproj",
+        "projectUniqueName": "D:\\Projects\\GameDveTool_ExcelExport\\ExcelExportTool\\ExcelExportTool\\ExcelExportTool.csproj",
         "projectName": "ExcelExportTool",
-        "projectPath": "F:\\UnityProject\\GameDveTool_ExcelExport\\ExcelExportTool\\ExcelExportTool\\ExcelExportTool.csproj",
-        "packagesPath": "C:\\Users\\yuyangqin\\.nuget\\packages\\",
-        "outputPath": "F:\\UnityProject\\GameDveTool_ExcelExport\\ExcelExportTool\\ExcelExportTool\\obj\\",
+        "projectPath": "D:\\Projects\\GameDveTool_ExcelExport\\ExcelExportTool\\ExcelExportTool\\ExcelExportTool.csproj",
+        "packagesPath": "C:\\Users\\14306\\.nuget\\packages\\",
+        "outputPath": "D:\\Projects\\GameDveTool_ExcelExport\\ExcelExportTool\\ExcelExportTool\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "C:\\Users\\yuyangqin\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\14306\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
@@ -58,7 +58,7 @@
               "privateAssets": "none"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.108/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.101/PortableRuntimeIdentifierGraph.json"
         }
       }
     }

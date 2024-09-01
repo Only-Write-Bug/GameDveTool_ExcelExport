@@ -4,5 +4,6 @@ public enum FinishResults
 {
     Default,
     Success,
-    Failure
+    Failure,
+    Warning
 }
