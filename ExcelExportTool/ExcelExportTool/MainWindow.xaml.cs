@@ -13,11 +13,13 @@ public partial class MainWindow : Window
 {
     private const string _PRIVATE_DATA_FOLDER_NAME = "_data";
     private const string _OPTIONAL_DATA_FILE_NAME = "optional_data.json";
+    private const string _DIRTY_EXCEL_FILE_NAME = "excel_dirty_data.json";
     
     private LogWindow _curLogWindow = null;
     
     private string _toolPrivateDataFolderPath = null;
-    
+    private Dictionary<string, (DateTime lastLoadTime, DateTime lastWriteTime)> _excelDirtyDataDic = new Dictionary<string, (DateTime lastLoadTime, DateTime lastWriteTime)>();
+
     private OptionalData _optionalData = null;
 
     public MainWindow()
@@ -76,6 +78,8 @@ public partial class MainWindow : Window
                 _curLogWindow.AddLog(FinishResults.Failure, "Work failed, please fix bug by log, try again");
                 return;
             }
+
+            ExportWorkFlowStart();
         };
     }
 
@@ -119,7 +123,7 @@ public partial class MainWindow : Window
     /// 可选数据路径生成工厂
     /// </summary>
     /// <returns></returns>
-    private string OptionalDataFileFactory()
+    private string OptionalDataFilePathFactory()
     {
         if (string.IsNullOrEmpty(_toolPrivateDataFolderPath) || !Directory.Exists(_toolPrivateDataFolderPath))
             Check_CompletionToolPrivateDataFolder();
@@ -136,7 +140,7 @@ public partial class MainWindow : Window
         {
             WriteIndented = true
         });
-        File.WriteAllText(OptionalDataFileFactory(), dataString);
+        File.WriteAllText(OptionalDataFilePathFactory(), dataString);
     }
 
     /// <summary>
@@ -145,11 +149,44 @@ public partial class MainWindow : Window
     /// <returns></returns>
     private OptionalData LoadOptionalData()
     {
-        if (string.IsNullOrEmpty(_toolPrivateDataFolderPath) || !Directory.Exists(_toolPrivateDataFolderPath) || !File.Exists(OptionalDataFileFactory()))
+        if (string.IsNullOrEmpty(_toolPrivateDataFolderPath) || !Directory.Exists(_toolPrivateDataFolderPath) || !File.Exists(OptionalDataFilePathFactory()))
             return new OptionalData();
         
-        var data = JsonSerializer.Deserialize<OptionalData>(File.ReadAllText(OptionalDataFileFactory()));
+        var data = JsonSerializer.Deserialize<OptionalData>(File.ReadAllText(OptionalDataFilePathFactory()));
         
         return data ?? new OptionalData();
+    }
+
+    /// <summary>
+    /// Excel脏数据文件夹路径生成工厂
+    /// </summary>
+    /// <returns></returns>
+    private string ExcelDirtyDataFilePathFactory()
+    {
+        if (string.IsNullOrEmpty(_toolPrivateDataFolderPath) || !Directory.Exists(_toolPrivateDataFolderPath))
+            Check_CompletionToolPrivateDataFolder();
+        
+        return Path.Combine(_toolPrivateDataFolderPath, _DIRTY_EXCEL_FILE_NAME);
+    }
+
+    /// <summary>
+    /// 导出工作流程开始
+    /// </summary>
+    private void ExportWorkFlowStart()
+    {
+        var allExcels = GetCurExcelFolderAllExcelFiles();
+        
+    }
+
+    /// <summary>
+    /// 获取当前设定的文件夹下所有的excel文件
+    /// </summary>
+    /// <returns></returns>
+    private List<string> GetCurExcelFolderAllExcelFiles()
+    {
+        if (string.IsNullOrEmpty(_optionalData.curExcelsFolderPath))
+            return [];
+        
+        return Directory.GetFiles(_optionalData.curExcelsFolderPath, "*.xlsx", SearchOption.AllDirectories).ToList();
     }
 }
