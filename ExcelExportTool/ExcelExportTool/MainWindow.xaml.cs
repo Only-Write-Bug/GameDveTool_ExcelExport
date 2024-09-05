@@ -1,6 +1,7 @@
 ﻿using System.IO;
 using System.Text.Json;
 using System.Windows;
+using System.Windows.Documents;
 using ExcelExportTool.Util;
 using Microsoft.Win32;
 using Path = System.IO.Path;
@@ -22,6 +23,7 @@ public partial class MainWindow : Window
 
     //key:Full Path , value:last load time
     private Dictionary<string, DateTime> _excelDirtyDataDic;
+    private List<string> _dirtyExcels = [];
 
     private OptionalData _optionalData = null;
 
@@ -91,12 +93,14 @@ public partial class MainWindow : Window
     {
         var workFlowPipeline = new WorkflowPipeline()
             .AddStep(CheckPathConfig, "Path Settings failed")
-            .AddStep(LoadDirtyData, "Load Dirty Data failed");
+            .AddStep(LoadDirtyData, "Load Dirty Data failed")
+            .AddStep(GetDirtyExcels, "Get Dirty Excels failed");
 
         var result = workFlowPipeline.Execute();
         if (!result.IsSuccess)
         {
             _curLogWindow.AddLog(FinishResults.Failure, result.ErrorMessage);
+            _curLogWindow.AddLog(FinishResults.Failure, "Please fix bugs by logs, then try again");
         }
         else
         {
@@ -216,8 +220,7 @@ public partial class MainWindow : Window
         {
             _excelDirtyDataDic = File.Exists(dirtyFilePath)
                 ? _excelDirtyDataDic =
-                    JsonSerializer.Deserialize<Dictionary<string, DateTime>>(
-                        File.ReadAllText(dirtyFilePath))
+                    JsonSerializer.Deserialize<Dictionary<string, DateTime>>(File.ReadAllText(dirtyFilePath))
                 : new Dictionary<string, DateTime>();
 
             return true;
@@ -249,14 +252,46 @@ public partial class MainWindow : Window
     }
 
     /// <summary>
-    /// 获取当前设定的文件夹下所有的excel文件
+    /// 获取脏Excel
     /// </summary>
     /// <returns></returns>
-    private List<string> GetCurExcelFolderAllExcelFiles()
+    private bool GetDirtyExcels()
     {
         if (string.IsNullOrEmpty(_optionalData.curExcelsFolderPath))
-            return [];
+        {
+            _curLogWindow.AddLog(FinishResults.Failure, "Excel Read Path is Null");
+            return false;
+        }
+        
+        var excels = Directory.GetFiles(_optionalData.curExcelsFolderPath, "*.xlsx", SearchOption.AllDirectories).ToList();
+        if (excels.Count <= 0)
+        {
+            _curLogWindow.AddLog(FinishResults.Warning, "There are no '.xlsx' files in the current read directory");
+            return false;
+        }
 
-        return Directory.GetFiles(_optionalData.curExcelsFolderPath, "*.xlsx", SearchOption.AllDirectories).ToList();
+        _dirtyExcels.Clear();
+        foreach (var excel in excels)
+        {
+            if (_excelDirtyDataDic.TryGetValue(excel, out var lastLoadTime))
+            {
+                if (lastLoadTime < File.GetLastWriteTime(excel))
+                {
+                    _dirtyExcels.Add(excel);
+                }
+            }
+            else
+            {
+                _excelDirtyDataDic.Add(excel, new DateTime());
+                _dirtyExcels.Add(excel);
+            }
+        }
+        if (_dirtyExcels.Count <= 0)
+        {
+            _curLogWindow.AddLog(FinishResults.Warning, "There are no updated file in the current read directory");
+            return false;
+        }
+        
+        return true;
     }
 }
