@@ -1,6 +1,7 @@
 ﻿using System.IO;
 using System.Text.Json;
 using System.Windows;
+using ExcelExportTool.Util;
 using Microsoft.Win32;
 using Path = System.IO.Path;
 
@@ -14,11 +15,13 @@ public partial class MainWindow : Window
     private const string _PRIVATE_DATA_FOLDER_NAME = "_data";
     private const string _OPTIONAL_DATA_FILE_NAME = "optional_data.json";
     private const string _DIRTY_EXCEL_FILE_NAME = "excel_dirty_data.json";
-    
+
     private LogWindow _curLogWindow = null;
-    
+
     private string _toolPrivateDataFolderPath = null;
-    private Dictionary<string, (DateTime lastLoadTime, DateTime lastWriteTime)> _excelDirtyDataDic = new Dictionary<string, (DateTime lastLoadTime, DateTime lastWriteTime)>();
+
+    //key:Full Path , value:last load time
+    private Dictionary<string, DateTime> _excelDirtyDataDic;
 
     private OptionalData _optionalData = null;
 
@@ -28,7 +31,7 @@ public partial class MainWindow : Window
 
         Check_CompletionToolPrivateDataFolder();
         _optionalData = LoadOptionalData();
-        
+
         InitExcelPathEditorBtn();
         InitXMLPathEditorBtn();
         InitStartBtn();
@@ -66,21 +69,41 @@ public partial class MainWindow : Window
         {
             var logWindow = new LogWindow();
             logWindow.Show();
-            
+
             _curLogWindow?.Close();
             _curLogWindow = logWindow;
             _curLogWindow.AddLog(FinishResults.Success, "Tool is running!!!");
-            
-            SaveOptionalData();
-            
-            if (!CheckPathConfig())
-            {
-                _curLogWindow.AddLog(FinishResults.Failure, "Work failed, please fix bug by log, try again");
-                return;
-            }
 
-            ExportWorkFlowStart();
+            ExportWorkFlow();
         };
+    }
+
+    private void SaveData()
+    {
+        SaveOptionalData();
+        SaveDirtyData();
+    }
+
+    /// <summary>
+    /// 导出工作流程
+    /// </summary>
+    private void ExportWorkFlow()
+    {
+        var workFlowPipeline = new WorkflowPipeline()
+            .AddStep(CheckPathConfig, "Path Settings failed")
+            .AddStep(LoadDirtyData, "Load Dirty Data failed");
+
+        var result = workFlowPipeline.Execute();
+        if (!result.IsSuccess)
+        {
+            _curLogWindow.AddLog(FinishResults.Failure, result.ErrorMessage);
+        }
+        else
+        {
+            _curLogWindow.AddLog(FinishResults.Success, "Export Work Finished");
+        }
+
+        SaveData();
     }
 
     /// <summary>
@@ -89,12 +112,14 @@ public partial class MainWindow : Window
     /// <returns></returns>
     private bool CheckPathConfig()
     {
-        if (string.IsNullOrEmpty(_optionalData.curExcelsFolderPath) || Directory.Exists(_optionalData.curExcelsFolderPath))
+        if (string.IsNullOrEmpty(_optionalData.curExcelsFolderPath) ||
+            !Directory.Exists(_optionalData.curExcelsFolderPath))
         {
             _curLogWindow.AddLog(FinishResults.Failure, "Excel path is Error");
             return false;
         }
-        if (string.IsNullOrEmpty(_optionalData.curXMLsFolderPath) || Directory.Exists(_optionalData.curXMLsFolderPath))
+
+        if (string.IsNullOrEmpty(_optionalData.curXMLsFolderPath) || !Directory.Exists(_optionalData.curXMLsFolderPath))
         {
             _curLogWindow.AddLog(FinishResults.Failure, "XML path is Error");
             return false;
@@ -127,7 +152,7 @@ public partial class MainWindow : Window
     {
         if (string.IsNullOrEmpty(_toolPrivateDataFolderPath) || !Directory.Exists(_toolPrivateDataFolderPath))
             Check_CompletionToolPrivateDataFolder();
-        
+
         return Path.Combine(_toolPrivateDataFolderPath, _OPTIONAL_DATA_FILE_NAME);
     }
 
@@ -136,11 +161,18 @@ public partial class MainWindow : Window
     /// </summary>
     private void SaveOptionalData()
     {
-        var dataString = JsonSerializer.Serialize(_optionalData, new JsonSerializerOptions()
+        try
         {
-            WriteIndented = true
-        });
-        File.WriteAllText(OptionalDataFilePathFactory(), dataString);
+            var dataString = JsonSerializer.Serialize(_optionalData, new JsonSerializerOptions()
+            {
+                WriteIndented = true
+            });
+            File.WriteAllText(OptionalDataFilePathFactory(), dataString);
+        }
+        catch (Exception e)
+        {
+            _curLogWindow.AddLog(FinishResults.Failure, "Save Optional Data Error :: " + e);
+        }
     }
 
     /// <summary>
@@ -149,12 +181,16 @@ public partial class MainWindow : Window
     /// <returns></returns>
     private OptionalData LoadOptionalData()
     {
-        if (string.IsNullOrEmpty(_toolPrivateDataFolderPath) || !Directory.Exists(_toolPrivateDataFolderPath) || !File.Exists(OptionalDataFilePathFactory()))
+        try
+        {
+            var data = JsonSerializer.Deserialize<OptionalData>(File.ReadAllText(OptionalDataFilePathFactory()));
+            return data ?? new OptionalData();
+        }
+        catch (Exception ex)
+        {
+            _curLogWindow.AddLog(FinishResults.Failure, $"Error loading optional data: {ex.Message}");
             return new OptionalData();
-        
-        var data = JsonSerializer.Deserialize<OptionalData>(File.ReadAllText(OptionalDataFilePathFactory()));
-        
-        return data ?? new OptionalData();
+        }
     }
 
     /// <summary>
@@ -165,17 +201,51 @@ public partial class MainWindow : Window
     {
         if (string.IsNullOrEmpty(_toolPrivateDataFolderPath) || !Directory.Exists(_toolPrivateDataFolderPath))
             Check_CompletionToolPrivateDataFolder();
-        
+
         return Path.Combine(_toolPrivateDataFolderPath, _DIRTY_EXCEL_FILE_NAME);
     }
 
     /// <summary>
-    /// 导出工作流程开始
+    /// 加载脏数据
     /// </summary>
-    private void ExportWorkFlowStart()
+    private bool LoadDirtyData()
     {
-        var allExcels = GetCurExcelFolderAllExcelFiles();
-        
+        var dirtyFilePath = ExcelDirtyDataFilePathFactory();
+
+        try
+        {
+            _excelDirtyDataDic = File.Exists(dirtyFilePath)
+                ? _excelDirtyDataDic =
+                    JsonSerializer.Deserialize<Dictionary<string, DateTime>>(
+                        File.ReadAllText(dirtyFilePath))
+                : new Dictionary<string, DateTime>();
+
+            return true;
+        }
+        catch (Exception e)
+        {
+            _curLogWindow.AddLog(FinishResults.Failure, "Load Dirty Data Error :: " + e);
+            return false;
+        }
+    }
+
+    /// <summary>
+    /// 保存脏数据
+    /// </summary>
+    private void SaveDirtyData()
+    {
+        try
+        {
+            var dataString = JsonSerializer.Serialize(_excelDirtyDataDic, new JsonSerializerOptions()
+            {
+                WriteIndented = true
+            });
+            File.WriteAllText(ExcelDirtyDataFilePathFactory(), dataString);
+        }
+        catch (Exception e)
+        {
+            _curLogWindow.AddLog(FinishResults.Failure, "Save Dirty Data Error :: " + e);
+        }
     }
 
     /// <summary>
@@ -186,7 +256,7 @@ public partial class MainWindow : Window
     {
         if (string.IsNullOrEmpty(_optionalData.curExcelsFolderPath))
             return [];
-        
+
         return Directory.GetFiles(_optionalData.curExcelsFolderPath, "*.xlsx", SearchOption.AllDirectories).ToList();
     }
 }
