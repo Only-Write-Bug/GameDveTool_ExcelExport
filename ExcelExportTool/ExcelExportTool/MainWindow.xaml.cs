@@ -37,6 +37,7 @@ public partial class MainWindow : Window
         InitExcelPathEditorBtn();
         InitXMLPathEditorBtn();
         InitStartBtn();
+        InitCleanDirtyDataBtn();
     }
 
     private void InitExcelPathEditorBtn()
@@ -77,6 +78,18 @@ public partial class MainWindow : Window
             _curLogWindow.AddLog(FinishResults.Success, "Tool is running!!!");
 
             ExportWorkFlow();
+        };
+    }
+
+    private void InitCleanDirtyDataBtn()
+    {
+        CleanDirtyDataBtn.Click += (sender, args) =>
+        {
+            var dirtyDataPath = ExcelDirtyDataFilePathFactory();
+            if(File.Exists(dirtyDataPath))
+            {
+                File.Delete((dirtyDataPath));
+            }
         };
     }
 
