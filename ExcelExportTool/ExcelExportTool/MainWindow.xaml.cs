@@ -4,6 +4,7 @@ using System.Windows;
 using System.Windows.Documents;
 using ExcelExportTool.Util;
 using Microsoft.Win32;
+using OfficeOpenXml;
 using Path = System.IO.Path;
 
 namespace ExcelExportTool;
@@ -319,21 +320,58 @@ public partial class MainWindow : Window
         foreach (var excel in _dirtyExcels)
         {
             generationWorkFlow.ClearSteps();
-            generationWorkFlow.AddStep(LoadExcelData2Array, "");
+            // generationWorkFlow.AddStep(LoadExcelData2Array, "");
+            generationWorkFlow.Execute(excel);
         }
 
         return true;
     }
 
-    private bool LoadExcelData2Array(dynamic excelPath)
+    /// <summary>
+    /// 加载Excel数据，转换为二维数组
+    /// </summary>
+    /// <param name="excelPath"></param>
+    /// <returns></returns>
+    private (T parameter, bool isSucceed) LoadExcelData2Array<T>(dynamic excelPath)
     {
         if (!File.Exists(excelPath))
         {
-            return false;
+            return (parameter: default(T), isSucceed: false);
         }
-        
+
+        string[][] result;
         _curLogWindow.AddLog(FinishResults.Default, $"Start Load Excel Data :: {excelPath}");
+        var excelInfo = new FileInfo(excelPath);
+        try
+        {
+            using (var package = new ExcelPackage(excelInfo))
+            {
+                if (package.Workbook.Worksheets.Count > 1)
+                {
+                    _curLogWindow.AddLog(FinishResults.Warning,
+                        "workbook has more than one worksheets, only load first one");
+                }
+
+                var worksheet = package.Workbook.Worksheets[0];
+                var rowCount = worksheet.Dimension.Rows;
+                var colCount = worksheet.Dimension.Columns;
+
+                for (var i = 1; i < rowCount; i++)
+                {
+                    for (var j = 1; j < colCount; j++)
+                    {
+                        _curLogWindow.AddLog(FinishResults.Default, worksheet.Cells[i, j].Text);
+                    }
+                }
+            }
+        }
+        catch (Exception e)
+        {
+            _curLogWindow.AddLog(FinishResults.Failure, $"Load Excel failed :: Error info :: {e.Message}");
+            return (parameter: default(T), isSucceed: false);
+        }
+        _curLogWindow.AddLog(FinishResults.Success, $"Success Load Excel Data :: {excelPath}");
         
-        return true;
+        return (parameter: default(T), isSucceed: true);
     }
 }

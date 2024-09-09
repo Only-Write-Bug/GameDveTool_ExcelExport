@@ -44,3 +44,17 @@ D:\Projects\GameDveTool_ExcelExport\ExcelExportTool\ExcelExportTool\obj\Debug\ne
 D:\Projects\GameDveTool_ExcelExport\ExcelExportTool\ExcelExportTool\obj\Debug\net8.0-windows\ExcelExportTool.pdb
 D:\Projects\GameDveTool_ExcelExport\ExcelExportTool\ExcelExportTool\obj\Debug\net8.0-windows\ExcelExportTool.genruntimeconfig.cache
 D:\Projects\GameDveTool_ExcelExport\ExcelExportTool\ExcelExportTool\obj\Debug\net8.0-windows\ref\ExcelExportTool.dll
+F:\UnityProject\GameDveTool_ExcelExport\ExcelExportTool\ExcelExportTool\bin\Debug\net8.0-windows\EPPlus.dll
+F:\UnityProject\GameDveTool_ExcelExport\ExcelExportTool\ExcelExportTool\bin\Debug\net8.0-windows\EPPlus.Interfaces.dll
+F:\UnityProject\GameDveTool_ExcelExport\ExcelExportTool\ExcelExportTool\bin\Debug\net8.0-windows\EPPlus.System.Drawing.dll
+F:\UnityProject\GameDveTool_ExcelExport\ExcelExportTool\ExcelExportTool\bin\Debug\net8.0-windows\Microsoft.Extensions.Configuration.dll
+F:\UnityProject\GameDveTool_ExcelExport\ExcelExportTool\ExcelExportTool\bin\Debug\net8.0-windows\Microsoft.Extensions.Configuration.Abstractions.dll
+F:\UnityProject\GameDveTool_ExcelExport\ExcelExportTool\ExcelExportTool\bin\Debug\net8.0-windows\Microsoft.Extensions.Configuration.FileExtensions.dll
+F:\UnityProject\GameDveTool_ExcelExport\ExcelExportTool\ExcelExportTool\bin\Debug\net8.0-windows\Microsoft.Extensions.Configuration.Json.dll
+F:\UnityProject\GameDveTool_ExcelExport\ExcelExportTool\ExcelExportTool\bin\Debug\net8.0-windows\Microsoft.Extensions.FileProviders.Abstractions.dll
+F:\UnityProject\GameDveTool_ExcelExport\ExcelExportTool\ExcelExportTool\bin\Debug\net8.0-windows\Microsoft.Extensions.FileProviders.Physical.dll
+F:\UnityProject\GameDveTool_ExcelExport\ExcelExportTool\ExcelExportTool\bin\Debug\net8.0-windows\Microsoft.Extensions.FileSystemGlobbing.dll
+F:\UnityProject\GameDveTool_ExcelExport\ExcelExportTool\ExcelExportTool\bin\Debug\net8.0-windows\Microsoft.Extensions.Primitives.dll
+F:\UnityProject\GameDveTool_ExcelExport\ExcelExportTool\ExcelExportTool\bin\Debug\net8.0-windows\Microsoft.IO.RecyclableMemoryStream.dll
+F:\UnityProject\GameDveTool_ExcelExport\ExcelExportTool\ExcelExportTool\obj\Debug\net8.0-windows\ExcelExportTool.csproj.AssemblyReference.cache
+F:\UnityProject\GameDveTool_ExcelExport\ExcelExportTool\ExcelExportTool\obj\Debug\net8.0-windows\ExcelExportTool.csproj.CopyComplete
