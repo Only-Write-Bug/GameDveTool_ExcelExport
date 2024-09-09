@@ -315,13 +315,25 @@ public partial class MainWindow : Window
     /// <returns></returns>
     private bool GenerationProcess()
     {
-        var generationWorkFlow = new NonTransitivePipeline();
+        var generationWorkFlow = new TransitivePipeline<dynamic>();
         foreach (var excel in _dirtyExcels)
         {
             generationWorkFlow.ClearSteps();
-            
+            generationWorkFlow.AddStep(LoadExcelData2Array, "");
         }
 
+        return true;
+    }
+
+    private bool LoadExcelData2Array(dynamic excelPath)
+    {
+        if (!File.Exists(excelPath))
+        {
+            return false;
+        }
+        
+        _curLogWindow.AddLog(FinishResults.Default, $"Start Load Excel Data :: {excelPath}");
+        
         return true;
     }
 }

@@ -13,11 +13,10 @@ public class TransitivePipeline<T>
     
     public TransitivePipeline<T> AddStep(Func<T, bool> step, string errorMessage)
     {
-        _steps.Add((T) =>
+        _steps.Add(value =>
         {
-            var parameter = default(T);
-            var isSucceed = step(parameter);
-            return (parameter, isSucceed);
+            var isSucceed = step(value);
+            return (value, isSucceed);
         });
         _errorMessages.Add(errorMessage);
         return this;
