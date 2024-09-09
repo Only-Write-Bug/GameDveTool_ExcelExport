@@ -104,10 +104,11 @@ public partial class MainWindow : Window
     /// </summary>
     private void ExportWorkFlow()
     {
-        var workFlowPipeline = new WorkflowPipeline()
+        var workFlowPipeline = new NonTransitivePipeline()
             .AddStep(CheckPathConfig, "Path Settings failed")
             .AddStep(LoadDirtyData, "Load Dirty Data failed")
-            .AddStep(GetDirtyExcels, "Get Dirty Excels failed");
+            .AddStep(GetDirtyExcels, "Get Dirty Excels failed")
+            .AddStep(GenerationProcess, "Generation Process failed");
 
         var result = workFlowPipeline.Execute();
         if (!result.IsSuccess)
@@ -305,6 +306,22 @@ public partial class MainWindow : Window
             return false;
         }
         
+        return true;
+    }
+
+    /// <summary>
+    /// 生成流程
+    /// </summary>
+    /// <returns></returns>
+    private bool GenerationProcess()
+    {
+        var generationWorkFlow = new NonTransitivePipeline();
+        foreach (var excel in _dirtyExcels)
+        {
+            generationWorkFlow.ClearSteps();
+            
+        }
+
         return true;
     }
 }
