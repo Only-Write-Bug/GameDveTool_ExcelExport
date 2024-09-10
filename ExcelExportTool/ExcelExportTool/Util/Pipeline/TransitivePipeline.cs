@@ -4,25 +4,24 @@ namespace ExcelExportTool.Util;
 /// 传递性管道
 /// 结果会跟随步骤传递
 /// </summary>
-/// <typeparam name="T">结果类型约束，如果结构复杂，可以使用dynamic，但需要自己在步骤中维护</typeparam>
-public class TransitivePipeline<T>
+public class TransitivePipeline
 {
-    private readonly List<Func<T, (T parameter, bool isSucceed)>> _steps = [];
+    private readonly List<Func<dynamic, (dynamic parameter, bool isSucceed)>> _steps = [];
     private readonly List<string> _errorMessages = [];
     private string _errorMessage = string.Empty;
     
-    public TransitivePipeline<T> AddStep(Func<T, bool> step, string errorMessage)
+    public TransitivePipeline AddStep(Func<dynamic, (dynamic parameter, bool isSucceed)> step, string errorMessage)
     {
-        _steps.Add(value =>
+        _steps.Add(parameter =>
         {
-            var isSucceed = step(value);
-            return (value, isSucceed);
+            var result = step(parameter);
+            return (result.parameter, result.isSucceed);
         });
         _errorMessages.Add(errorMessage);
         return this;
     }
 
-    public (bool IsSuccess, string ErrorMessage) Execute(T value)
+    public (bool IsSuccess, string ErrorMessage) Execute(dynamic value)
     {
         for (var i = 0; i < _steps.Count; i++)
         {

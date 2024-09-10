@@ -316,11 +316,11 @@ public partial class MainWindow : Window
     /// <returns></returns>
     private bool GenerationProcess()
     {
-        var generationWorkFlow = new TransitivePipeline<dynamic>();
+        var generationWorkFlow = new TransitivePipeline();
         foreach (var excel in _dirtyExcels)
         {
             generationWorkFlow.ClearSteps();
-            // generationWorkFlow.AddStep(LoadExcelData2Array, "");
+            generationWorkFlow.AddStep(LoadExcelData2Array, "Load Excel Error");
             generationWorkFlow.Execute(excel);
         }
 
@@ -332,14 +332,14 @@ public partial class MainWindow : Window
     /// </summary>
     /// <param name="excelPath"></param>
     /// <returns></returns>
-    private (T parameter, bool isSucceed) LoadExcelData2Array<T>(dynamic excelPath)
+    private (dynamic parameter, bool isSucceed) LoadExcelData2Array(dynamic excelPath)
     {
         if (!File.Exists(excelPath))
         {
-            return (parameter: default(T), isSucceed: false);
+            return (parameter: null, isSucceed: false);
         }
 
-        string[][] result;
+        string[][] result = [];
         _curLogWindow.AddLog(FinishResults.Default, $"Start Load Excel Data :: {excelPath}");
         var excelInfo = new FileInfo(excelPath);
         try
@@ -368,10 +368,10 @@ public partial class MainWindow : Window
         catch (Exception e)
         {
             _curLogWindow.AddLog(FinishResults.Failure, $"Load Excel failed :: Error info :: {e.Message}");
-            return (parameter: default(T), isSucceed: false);
+            return (parameter: null, isSucceed: false);
         }
         _curLogWindow.AddLog(FinishResults.Success, $"Success Load Excel Data :: {excelPath}");
         
-        return (parameter: default(T), isSucceed: true);
+        return (parameter: result, isSucceed: true);
     }
 }
