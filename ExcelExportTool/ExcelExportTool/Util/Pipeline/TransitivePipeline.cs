@@ -6,40 +6,32 @@ namespace ExcelExportTool.Util;
 /// </summary>
 public class TransitivePipeline
 {
-    private readonly List<Func<dynamic, (dynamic parameter, bool isSucceed)>> _steps = [];
-    private readonly List<string> _errorMessages = [];
-    private string _errorMessage = string.Empty;
-    
-    public TransitivePipeline AddStep(Func<dynamic, (dynamic parameter, bool isSucceed)> step, string errorMessage)
+    private Queue<Func<object[], (bool isSucces, object[] result)>> _steps = [];
+    private Queue<string> _errorMessages = [];
+
+    public TransitivePipeline AddStep(Func<object[], (bool isSucces, object[] result)> step, string errorMessage)
     {
-        _steps.Add(parameter =>
-        {
-            var result = step(parameter);
-            return (result.parameter, result.isSucceed);
-        });
-        _errorMessages.Add(errorMessage);
+        _steps.Enqueue(step);
+        _errorMessages.Enqueue(errorMessage);
+        
         return this;
     }
 
-    public (bool IsSuccess, string ErrorMessage) Execute(dynamic value)
+    public (bool isSucces, object[] result) Execute(object[] startParams)
     {
-        for (var i = 0; i < _steps.Count; i++)
+        (bool isSucces, object[] result) lastStepResult = (true, startParams);
+        while (_steps.Count > 0)
         {
-            var result = _steps[i](value);
-            value = result.parameter;
-            if (!result.isSucceed)
-            {
-                _errorMessage = _errorMessages[i];
-                return (false, _errorMessage);
-            }
-        }
-        return (true, string.Empty);
-    }
+            var step = _steps.Dequeue();
+            var errorMessage = _errorMessages.Dequeue();
 
-    public void ClearSteps()
-    {
-        _steps.Clear();
-        _errorMessages.Clear();
-        _errorMessage = string.Empty;
+            if (!lastStepResult.isSucces)
+            {
+                return (false, new object[] { errorMessage });
+            }
+            lastStepResult = step.Invoke(lastStepResult.result);
+        }
+        
+        return (true, [string.Empty]);
     }
 }

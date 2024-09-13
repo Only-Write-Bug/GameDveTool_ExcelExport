@@ -319,9 +319,7 @@ public partial class MainWindow : Window
         var generationWorkFlow = new TransitivePipeline();
         foreach (var excel in _dirtyExcels)
         {
-            generationWorkFlow.ClearSteps();
-            generationWorkFlow.AddStep(LoadExcelData2Array, "Load Excel Error");
-            generationWorkFlow.Execute(excel);
+            
         }
 
         return true;

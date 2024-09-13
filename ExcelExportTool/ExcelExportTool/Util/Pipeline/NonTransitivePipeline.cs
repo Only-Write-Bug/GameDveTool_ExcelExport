@@ -6,27 +6,28 @@ namespace ExcelExportTool.Util;
 /// </summary>
 public class NonTransitivePipeline
 {
-    private readonly List<Func<bool>> _steps = [];
-    private readonly List<string> _errorMessages = [];
+    private readonly Queue<Func<bool>> _steps = [];
+    private readonly Queue<string> _errorMessages = [];
     private string _errorMessage = string.Empty;
 
     public NonTransitivePipeline AddStep(Func<bool> step, string errorMessage)
     {
-        _steps.Add(step);
-        _errorMessages.Add(errorMessage);
+        _steps.Enqueue(step);
+        _errorMessages.Enqueue(errorMessage);
         return this;
     }
 
     public (bool IsSuccess, string ErrorMessage) Execute()
     {
-        for (var i = 0; i < _steps.Count; i++)
+        while (_steps.Count > 0)
         {
-            if (!_steps[i]())
-            {
-                _errorMessage = _errorMessages[i];
-                return (false, _errorMessage);
-            }
+            var func = _steps.Dequeue();
+            var errorMessage = _errorMessages.Dequeue();
+
+            if (!func())
+                return (false, errorMessage);
         }
+
         return (true, string.Empty);
     }
 
@@ -35,5 +36,10 @@ public class NonTransitivePipeline
         _steps.Clear();
         _errorMessages.Clear();
         _errorMessage = string.Empty;
+    }
+
+    ~NonTransitivePipeline()
+    {
+        ClearSteps();
     }
 }
