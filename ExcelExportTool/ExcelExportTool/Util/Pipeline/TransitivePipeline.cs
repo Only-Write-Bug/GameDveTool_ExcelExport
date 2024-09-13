@@ -34,4 +34,15 @@ public class TransitivePipeline
         
         return (true, [string.Empty]);
     }
+
+    public void Clear()
+    {
+        _steps.Clear();
+        _errorMessages.Clear();
+    }
+
+    ~TransitivePipeline()
+    {
+        Clear();
+    }
 }

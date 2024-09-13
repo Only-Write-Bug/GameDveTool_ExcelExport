@@ -8,7 +8,6 @@ public class NonTransitivePipeline
 {
     private readonly Queue<Func<bool>> _steps = [];
     private readonly Queue<string> _errorMessages = [];
-    private string _errorMessage = string.Empty;
 
     public NonTransitivePipeline AddStep(Func<bool> step, string errorMessage)
     {
@@ -35,7 +34,6 @@ public class NonTransitivePipeline
     {
         _steps.Clear();
         _errorMessages.Clear();
-        _errorMessage = string.Empty;
     }
 
     ~NonTransitivePipeline()
