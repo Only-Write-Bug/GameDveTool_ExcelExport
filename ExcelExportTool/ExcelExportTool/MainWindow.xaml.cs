@@ -4,7 +4,7 @@ using System.Windows;
 using System.Windows.Documents;
 using ExcelExportTool.Util;
 using Microsoft.Win32;
-using OfficeOpenXml;
+using ExcelDataReader;
 using Path = System.IO.Path;
 
 namespace ExcelExportTool;
@@ -319,7 +319,9 @@ public partial class MainWindow : Window
         var generationWorkFlow = new TransitivePipeline();
         foreach (var excel in _dirtyExcels)
         {
-            
+            generationWorkFlow.Clear();
+            generationWorkFlow.AddStep(LoadExcelData2Array, "");
+            generationWorkFlow.Execute([excel]);
         }
 
         return true;
@@ -328,48 +330,50 @@ public partial class MainWindow : Window
     /// <summary>
     /// 加载Excel数据，转换为二维数组
     /// </summary>
-    /// <param name="excelPath"></param>
-    /// <returns></returns>
-    private (dynamic parameter, bool isSucceed) LoadExcelData2Array(dynamic excelPath)
+    /// <returns>[0]:DataArray</returns>
+    private (bool isSucceed, object[] result) LoadExcelData2Array(object[] parameter)
     {
+        var excelPath = parameter[0] as string;
+        if (excelPath == null)
+        {
+            _curLogWindow.AddLog(FinishResults.Failure, "Load Excel step has error, parameter dont have path");
+            return (isSucceed: false, null);
+        }
+        
         if (!File.Exists(excelPath))
         {
-            return (parameter: null, isSucceed: false);
+            _curLogWindow.AddLog(FinishResults.Failure, "Load Excel step has error, dont exist right path");
+            return (isSucceed: false, null);
         }
 
         string[][] result = [];
         _curLogWindow.AddLog(FinishResults.Default, $"Start Load Excel Data :: {excelPath}");
-        var excelInfo = new FileInfo(excelPath);
         try
         {
-            using (var package = new ExcelPackage(excelInfo))
+            using (var stream = File.Open(excelPath, FileMode.Open, FileAccess.Read))
             {
-                if (package.Workbook.Worksheets.Count > 1)
+                using (var reader = ExcelReaderFactory.CreateReader(stream))
                 {
-                    _curLogWindow.AddLog(FinishResults.Warning,
-                        "workbook has more than one worksheets, only load first one");
-                }
-
-                var worksheet = package.Workbook.Worksheets[0];
-                var rowCount = worksheet.Dimension.Rows;
-                var colCount = worksheet.Dimension.Columns;
-
-                for (var i = 1; i < rowCount; i++)
-                {
-                    for (var j = 1; j < colCount; j++)
+                    var excel = reader.AsDataSet();
+                    if (excel.Tables.Count > 1)
                     {
-                        _curLogWindow.AddLog(FinishResults.Default, worksheet.Cells[i, j].Text);
+                        _curLogWindow.AddLog(FinishResults.Warning,
+                            "workbook has more than one worksheets, only load first one");
                     }
+                    
+                    var table = excel.Tables[0];
+                    var rowCount = table.Rows;
+                    var colCount = table.Columns;
                 }
             }
         }
         catch (Exception e)
         {
             _curLogWindow.AddLog(FinishResults.Failure, $"Load Excel failed :: Error info :: {e.Message}");
-            return (parameter: null, isSucceed: false);
+            return (isSucceed: false, null);
         }
         _curLogWindow.AddLog(FinishResults.Success, $"Success Load Excel Data :: {excelPath}");
         
-        return (parameter: result, isSucceed: true);
+        return (isSucceed: true, parameter: [result]);
     }
 }

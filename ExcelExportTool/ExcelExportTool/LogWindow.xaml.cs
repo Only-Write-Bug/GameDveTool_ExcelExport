@@ -19,11 +19,12 @@ public partial class LogWindow : Window
     private TextBlock LogTemplate(FinishResults finishResult, string content)
     {
         var result = new TextBlock();
-
+        result.TextWrapping = TextWrapping.Wrap;
+        result.VerticalAlignment = VerticalAlignment.Stretch;
         result.FontSize = 15;
         result.Text = content;
         result.Width = 1100;
-        result.Height = 30;
+        
         var brush = new SolidColorBrush(Colors.White);
         switch (finishResult)
         {
